@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import StudentModel, { IStudent } from '@/model/Student';
 
-type Params = { id: string };
-
 // PUT (Update) a student by ID
-export async function PUT(req: NextRequest, { params }: { params: Params }) {
-  const { id } = params;
+export async function PUT(
+  req: NextRequest,
+  context: { params: { id: string } } // inline typing
+) {
+  const { id } = context.params;
   await connectDB();
 
   try {
@@ -27,12 +28,16 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
 }
 
 // DELETE a student by ID
-export async function DELETE(req: NextRequest, { params }: { params: Params }) {
-  const { id } = params;
+export async function DELETE(
+  req: NextRequest,
+  context: { params: { id: string } } // inline typing
+) {
+  const { id } = context.params;
   await connectDB();
 
   try {
     const deletedStudent: IStudent | null = await StudentModel.findByIdAndDelete(id);
+
     if (!deletedStudent) {
       return NextResponse.json({ message: 'Student not found.' }, { status: 404 });
     }
