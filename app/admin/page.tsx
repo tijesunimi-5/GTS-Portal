@@ -30,11 +30,6 @@ const AdminDashboard = () => {
   const [newStudent, setNewStudent] = useState<Omit<Student, 'id'>>({ name: '', department: '', uniqueID: '' });
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
 
-  // Do NOT use useRouter or the redirect useEffect here.
-  // The redirection logic is now handled by AdminLayout.
-  // const router = useRouter();
-  // useEffect(() => { ... }, [...]); 
-
   const fetchStudents = async () => {
     try {
       const res = await fetch('/api/students');

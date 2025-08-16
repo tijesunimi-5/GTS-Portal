@@ -1,26 +1,26 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
-import StudentModel, { IStudent } from '@/model/Student';
+import UserModel, { IUser } from '@/model/User';
 
-// GET all students
+// GET all users
 export async function GET() {
   await connectDB();
   try {
-    const students: IStudent[] = await StudentModel.find({});
-    return NextResponse.json(students, { status: 200 });
+    const users: IUser[] = await UserModel.find({});
+    return NextResponse.json(users, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: 'Failed to fetch students', error }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to fetch users', error }, { status: 500 });
   }
 }
 
-// POST a new student
+// POST a new user
 export async function POST(req: NextRequest) {
   await connectDB();
   try {
     const body = await req.json();
-    const newStudent: IStudent = await StudentModel.create(body);
-    return NextResponse.json({ message: 'Student added successfully!', user: newStudent }, { status: 201 });
+    const newUser: IUser = await UserModel.create(body);
+    return NextResponse.json({ message: 'User added successfully!', user: newUser }, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ message: 'Failed to add student', error }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to add user', error }, { status: 500 });
   }
 }
