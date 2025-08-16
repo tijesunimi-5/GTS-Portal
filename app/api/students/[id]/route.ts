@@ -2,12 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import StudentModel, { IStudent } from '@/model/Student';
 
+// Helper to extract ID from URL
+function getIdFromRequest(req: NextRequest) {
+  const url = new URL(req.url);
+  const segments = url.pathname.split('/');
+  return segments[segments.length - 1]; // last segment is the id
+}
+
 // PUT (Update) a student by ID
-export async function PUT(
-  req: NextRequest,
-  context: { params: { id: string } } // inline typing
-) {
-  const { id } = context.params;
+export async function PUT(req: NextRequest) {
+  const id = getIdFromRequest(req);
   await connectDB();
 
   try {
@@ -28,11 +32,8 @@ export async function PUT(
 }
 
 // DELETE a student by ID
-export async function DELETE(
-  req: NextRequest,
-  context: { params: { id: string } } // inline typing
-) {
-  const { id } = context.params;
+export async function DELETE(req: NextRequest) {
+  const id = getIdFromRequest(req);
   await connectDB();
 
   try {
