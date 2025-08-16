@@ -2,18 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import StudentModel, { IStudent } from '@/model/Student';
 
-// PUT (Update) a student by ID
-export async function PUT(
-  req: NextRequest,
-  context: { params: { id: string } } // <-- inline typing
-) {
-  const { params } = context;
-  const { id } = params;
+type Params = { id: string };
 
+// PUT (Update) a student by ID
+export async function PUT(req: NextRequest, { params }: { params: Params }) {
+  const { id } = params;
   await connectDB();
+
   try {
     const body = await req.json();
-    const updatedStudent = await StudentModel.findByIdAndUpdate(id, body, {
+    const updatedStudent: IStudent | null = await StudentModel.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
     });
@@ -28,17 +26,13 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
-  const { params } = context;
+// DELETE a student by ID
+export async function DELETE(req: NextRequest, { params }: { params: Params }) {
   const { id } = params;
-
   await connectDB();
-  try {
-    const deletedStudent = await StudentModel.findByIdAndDelete(id);
 
+  try {
+    const deletedStudent: IStudent | null = await StudentModel.findByIdAndDelete(id);
     if (!deletedStudent) {
       return NextResponse.json({ message: 'Student not found.' }, { status: 404 });
     }
@@ -48,4 +42,3 @@ export async function DELETE(
     return NextResponse.json({ message: 'Failed to delete student', error }, { status: 500 });
   }
 }
-
