@@ -1,34 +1,36 @@
+// app/api/students/[id]/route.ts
+
 import { NextResponse, NextRequest } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
-import UserModel, { IUser } from '@/model/User';
+import StudentModel, { IStudent } from '@/model/Student';
 
-// PUT (Update) a user by ID
+// PUT (Update) a student by ID
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   await connectDB();
   const { id } = params;
   try {
     const body = await req.json();
-    const updatedUser: IUser | null = await UserModel.findByIdAndUpdate(id, body, { new: true, runValidators: true });
-    if (!updatedUser) {
-      return NextResponse.json({ message: 'User not found.' }, { status: 404 });
+    const updatedStudent: IStudent | null = await StudentModel.findByIdAndUpdate(id, body, { new: true, runValidators: true });
+    if (!updatedStudent) {
+      return NextResponse.json({ message: 'Student not found.' }, { status: 404 });
     }
-    return NextResponse.json({ message: 'User updated successfully!', user: updatedUser }, { status: 200 });
+    return NextResponse.json({ message: 'Student updated successfully!', student: updatedStudent }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: 'Failed to update user', error }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to update student', error }, { status: 500 });
   }
 }
 
-// DELETE a user by ID
+// DELETE a student by ID
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   await connectDB();
   const { id } = params;
   try {
-    const deletedUser: IUser | null = await UserModel.findByIdAndDelete(id);
-    if (!deletedUser) {
-      return NextResponse.json({ message: 'User not found.' }, { status: 404 });
+    const deletedStudent: IStudent | null = await StudentModel.findByIdAndDelete(id);
+    if (!deletedStudent) {
+      return NextResponse.json({ message: 'Student not found.' }, { status: 404 });
     }
-    return NextResponse.json({ message: 'User deleted successfully!' }, { status: 200 });
+    return NextResponse.json({ message: 'Student deleted successfully!' }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: 'Failed to delete user', error }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to delete student', error }, { status: 500 });
   }
 }
