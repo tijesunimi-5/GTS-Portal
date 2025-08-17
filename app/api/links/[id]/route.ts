@@ -2,17 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import LinkModel, { ILink } from '@/model/Link';
 
-// Define the params interface for clarity
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
 // PUT (Update) a link by ID
-export async function PUT(req: NextRequest, { params }: RouteParams) {
+export async function PUT(req: NextRequest, params: any) {
   await connectDB();
-  const { id } = params;
+  const { id } = params.params; // Access id from params.params
   try {
     const body = await req.json();
     const updatedLink: ILink | null = await LinkModel.findByIdAndUpdate(id, body, { new: true, runValidators: true });
@@ -26,9 +19,9 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
 }
 
 // DELETE a link by ID
-export async function DELETE(req: NextRequest, { params }: RouteParams) {
+export async function DELETE(req: NextRequest, params: any) {
   await connectDB();
-  const { id } = params;
+  const { id } = params.params; // Access id from params.params
   try {
     const deletedLink: ILink | null = await LinkModel.findByIdAndDelete(id);
     if (!deletedLink) {
