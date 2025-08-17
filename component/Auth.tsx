@@ -16,7 +16,7 @@ const Auth = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const uniqueID = registrationNumberRef.current?.value;
+    const uniqueID = registrationNumberRef.current?.value.trim().toUpperCase();
     const password = passwordRef.current?.value;
 
     if (!uniqueID || !password) {
@@ -25,11 +25,11 @@ const Auth = () => {
       return;
     }
 
-    if (!/^[A-Z0-9]{10}$/.test(uniqueID)) {
-      setAlertMessage('Unique ID must be 10 characters (e.g., 21900631BJ)', 'error');
-      setIsLoading(false);
-      return;
-    }
+    // if (!/^[A-Z0-9]{10}$/.test(uniqueID)) {
+    //   setAlertMessage('Unique ID must be 10 characters (e.g., 21900631BJ)', 'error');
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     if (password.length < 6) {
       setAlertMessage('Password must be at least 6 characters', 'error');

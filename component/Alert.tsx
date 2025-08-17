@@ -3,8 +3,15 @@ import React from 'react';
 import { useCustomContext } from './Context';
 
 const Alert = () => {
-  const { alertMessage } = useCustomContext();
+  const { alertMessage, setAlertMessage } = useCustomContext();
 
+  if (alertMessage) {
+    setTimeout(() => {
+      setAlertMessage('', 'success'); // Clear alert after displaying
+    }, 3000); // Clear alert after 3 seconds
+  }
+
+  if (alertMessage?.message === '') return null;
   if (!alertMessage) return null;
 
   const { message, type } = alertMessage;
