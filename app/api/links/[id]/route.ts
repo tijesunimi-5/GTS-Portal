@@ -2,8 +2,15 @@ import { NextResponse, NextRequest } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import LinkModel, { ILink } from '@/model/Link';
 
+// Define the params interface for clarity
+interface RouteParams {
+  params: {
+    id: string;
+  };
+}
+
 // PUT (Update) a link by ID
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: RouteParams) {
   await connectDB();
   const { id } = params;
   try {
@@ -19,7 +26,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 // DELETE a link by ID
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: RouteParams) {
   await connectDB();
   const { id } = params;
   try {
