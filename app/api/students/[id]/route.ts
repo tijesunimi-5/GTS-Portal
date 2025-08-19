@@ -2,17 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import User from '@/model/User';
 import { connectDB } from '@/lib/mongodb';
 
-// Reusable Route Params type
-interface Params {
-  params: {
-    id: string;
-  };
-}
-
-export async function PUT(req: NextRequest, context: Params) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }  // ✅ inline this EXACTLY
+) {
   try {
     await connectDB();
-    const { id } = context.params;
+    const { id } = params;
     const updatedUserData = await req.json();
 
     const updatedUser = await User.findByIdAndUpdate(id, updatedUserData, {
@@ -35,10 +31,13 @@ export async function PUT(req: NextRequest, context: Params) {
   }
 }
 
-export async function DELETE(req: NextRequest, context: Params) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }  // ✅ exact same fix here
+) {
   try {
     await connectDB();
-    const { id } = context.params;
+    const { id } = params;
 
     const deletedUser = await User.findByIdAndDelete(id);
 
