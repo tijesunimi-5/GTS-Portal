@@ -4,11 +4,11 @@ import { connectDB } from '@/lib/mongodb';
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }  // ✅ inline this EXACTLY
+  { params }: { params: Promise<{ id: string }> }  // ✅ inline this EXACTLY
 ) {
   try {
     await connectDB();
-    const { id } = params;
+    const { id } = await params;
     const updatedUserData = await req.json();
 
     const updatedUser = await User.findByIdAndUpdate(id, updatedUserData, {
