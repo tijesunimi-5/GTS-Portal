@@ -33,11 +33,11 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }  // ✅ exact same fix here
+  { params }: { params: Promise<{ id: string }> }   // ✅ exact same fix here
 ) {
   try {
     await connectDB();
-    const { id } = params;
+    const { id } = await params;
 
     const deletedUser = await User.findByIdAndDelete(id);
 
