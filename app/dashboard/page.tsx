@@ -55,7 +55,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen px-4 pt-8 pb-12 bg-gray-100 xl:mx-auto xl:max-w-7xl">
+    <div className="flex flex-col min-h-screen px-4 pt-16 pb-12 bg-gray-100 xl:mx-auto xl:max-w-7xl">
       <div className="flex justify-between items-center mb-6 border-b-2 border-gray-300 pb-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Welcome, {user.name}</h1>

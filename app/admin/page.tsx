@@ -1,6 +1,5 @@
 // app/admin/page.tsx
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import { useCustomContext } from '@/component/Context';
 import Button from '@/component/Button';
@@ -27,8 +26,8 @@ const AdminDashboard = () => {
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [link, setLink] = useState<LinkItem>({ title: '', date: '', url: '' });
-  const [links, setLinks] = useState<LinkItem[]>([]); // State for links
-  const [editingLink, setEditingLink] = useState<LinkItem | null>(null); // State for editing link
+  const [links, setLinks] = useState<LinkItem[]>([]);
+  const [editingLink, setEditingLink] = useState<LinkItem | null>(null);
   const [newStudent, setNewStudent] = useState<Omit<Student, 'id'>>({ name: '', department: '', uniqueID: '' });
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const router = useRouter();
@@ -40,6 +39,7 @@ const AdminDashboard = () => {
       const data = await res.json();
       setStudents(data);
       setFilteredStudents(data);
+      console.log(filteredStudents, 'filteredStudents');
     } catch (error) {
       console.error('Failed to fetch students:', error);
       setAlertMessage('Failed to fetch students.', 'error');
@@ -71,7 +71,7 @@ const AdminDashboard = () => {
       }
       setAlertMessage('Link added successfully!', 'success');
       setLink({ title: '', date: '', url: '' });
-      fetchLinks(); // Refresh the list
+      fetchLinks();
     } catch (error) {
       console.error('Failed to add link:', error);
       setAlertMessage('Failed to add link.', 'error');
@@ -86,7 +86,7 @@ const AdminDashboard = () => {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
         setAlertMessage('Link deleted successfully!', 'success');
-        fetchLinks(); // Refresh the list
+        fetchLinks();
       } catch (error) {
         console.error('Failed to delete link:', error);
         setAlertMessage('Failed to delete link.', 'error');
@@ -109,7 +109,7 @@ const AdminDashboard = () => {
       }
       setAlertMessage('Link updated successfully!', 'success');
       setEditingLink(null);
-      fetchLinks(); // Refresh the list
+      fetchLinks();
     } catch (error) {
       console.error('Failed to update link:', error);
       setAlertMessage('Failed to update link.', 'error');
@@ -143,8 +143,9 @@ const AdminDashboard = () => {
   const handleUpdateStudent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingStudent) return;
+    console.log(editingStudent.uniqueID, 'id:', editingStudent.id)
     try {
-      const res = await fetch(`/api/students/${editingStudent.id}`, {
+      const res = await fetch(`/api/students/${editingStudent.id}`, { // Corrected line
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingStudent),
@@ -195,14 +196,12 @@ const AdminDashboard = () => {
 
   return (
     <AdminLayout>
-      <div className="container mx-auto p-4 max-w-7xl">
+      <div className="container mx-auto p-4 max-w-7xl pt-16">
         <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">Admin Dashboard</h1>
 
         {/* Link Management Section */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-gray-800">Manage Links</h2>
-
-          {/* Add New Link Form */}
           <form onSubmit={addLink} className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <input
               type="text"
@@ -233,7 +232,6 @@ const AdminDashboard = () => {
             </Button>
           </form>
 
-          {/* Links List */}
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white border border-gray-200 rounded-lg">
               <thead>
@@ -271,7 +269,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Edit Link Modal */}
         {editingLink && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-xl w-96">
@@ -325,7 +322,6 @@ const AdminDashboard = () => {
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-gray-800">Manage Students</h2>
 
-          {/* Search and Add Student Forms */}
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <input
               type="text"
@@ -365,7 +361,6 @@ const AdminDashboard = () => {
             </Button>
           </form>
 
-          {/* Students List */}
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white border border-gray-200 rounded-lg">
               <thead>
@@ -399,7 +394,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Edit Student Modal */}
         {editingStudent && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-xl w-96">

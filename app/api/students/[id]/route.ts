@@ -1,50 +1,83 @@
+// app/api/students/[id]/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/mongodb';
-import User, { IUser } from '@/model/User';
+import User from '@/model/User';
+import {connectDB} from '@/lib/mongodb';
 
-// Helper to get ID from request URL
-function getId(req: NextRequest) {
-  const url = new URL(req.url);
-  const segments = url.pathname.split('/');
-  return segments[segments.length - 1];
-}
-
-// PUT (Update) a student
-export async function PUT(req: NextRequest) {
-  const id = getId(req);
-  await connectDB();
-
+/**
+ * Handles PUT requests to update a user.
+ * @param req The incoming Next.js request.
+ * @param { params: { id: string } } The dynamic route parameters, containing the user's ID.
+ * @returns A NextResponse object.
+ */
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const body = await req.json();
-    const updatedUser: IUser | null = await User.findByIdAndUpdate(id, body, {
-      new: true,
-      runValidators: true,
-    });
+    // Connect to the database
+    await connectDB();
+    
+    // Destructure the user ID from the params
+    const { id } = params;
+    const updatedUserData = await req.json();
 
+    // Find the user by ID and update them using findByIdAndUpdate
+    // `new: true` returns the updated document
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      updatedUserData,
+      { new: true }
+    );
+
+    // If user is not found, return a 404 Not Found response.
     if (!updatedUser) {
-      return NextResponse.json({ message: 'User not found.' }, { status: 404 });
+      return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ message: 'Student updated successfully!', user: updatedUser }, { status: 200 });
+    console.log(`User with ID ${id} updated successfully.`);
+    return NextResponse.json({ message: 'User updated successfully', data: updatedUser });
   } catch (error) {
-    return NextResponse.json({ message: 'Failed to update student', error }, { status: 500 });
+    console.error('Error updating user:', error);
+    return NextResponse.json(
+      { message: 'Error updating user', error },
+      { status: 500 }
+    );
   }
 }
 
-// DELETE a student
-export async function DELETE(req: NextRequest) {
-  const id = getId(req);
-  await connectDB();
-
+/**
+ * Handles DELETE requests to delete a user.
+ * @param req The incoming Next.js request.
+ * @param { params: { id: string } } The dynamic route parameters, containing the user's ID.
+ * @returns A NextResponse object.
+ */
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const deletedUser: IUser | null = await User.findByIdAndDelete(id);
+    // Connect to the database
+    await connectDB();
+    
+    // Destructure the user ID from the params
+    const { id } = params;
 
+    // Find the user by ID and delete them using findByIdAndDelete
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    // If the user is not found, return a 404 Not Found response.
     if (!deletedUser) {
-      return NextResponse.json({ message: 'User not found.' }, { status: 404 });
+      return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ message: 'Student deleted successfully!' }, { status: 200 });
+    console.log(`User with ID ${id} deleted successfully.`);
+    return NextResponse.json({ message: 'User deleted successfully' });
   } catch (error) {
-    return NextResponse.json({ message: 'Failed to delete student', error }, { status: 500 });
+    console.error('Error deleting user:', error);
+    return NextResponse.json(
+      { message: 'Error deleting user', error },
+      { status: 500 }
+    );
   }
 }

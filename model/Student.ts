@@ -23,6 +23,6 @@ const StudentSchema: Schema = new Schema({
   }
 });
 
-const StudentModel: Model<IStudent> = mongoose.models.Student || mongoose.model<IStudent>('Student', StudentSchema);
+const StudentModel: Model<IStudent> = mongoose.models.Student || mongoose.model<IStudent>('User', StudentSchema);
 
 export default StudentModel;
