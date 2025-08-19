@@ -7,19 +7,19 @@ import {connectDB} from '@/lib/mongodb';
 /**
  * Handles PUT requests to update a user.
  * @param req The incoming Next.js request.
- * @param { params: { id: string } } The dynamic route parameters, containing the user's ID.
+ * @param context The dynamic route parameters, containing the user's ID.
  * @returns A NextResponse object.
  */
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     // Connect to the database
     await connectDB();
     
-    // Destructure the user ID from the params
-    const { id } = params;
+    // Destructure the user ID from the context object
+    const { id } = context.params;
     const updatedUserData = await req.json();
 
     // Find the user by ID and update them using findByIdAndUpdate
@@ -49,19 +49,19 @@ export async function PUT(
 /**
  * Handles DELETE requests to delete a user.
  * @param req The incoming Next.js request.
- * @param { params: { id: string } } The dynamic route parameters, containing the user's ID.
+ * @param context The dynamic route parameters, containing the user's ID.
  * @returns A NextResponse object.
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     // Connect to the database
     await connectDB();
     
-    // Destructure the user ID from the params
-    const { id } = params;
+    // Destructure the user ID from the context object
+    const { id } = context.params;
 
     // Find the user by ID and delete them using findByIdAndDelete
     const deletedUser = await User.findByIdAndDelete(id);
