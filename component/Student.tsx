@@ -18,7 +18,7 @@ export default function Student() {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        '/api/auth/admin/users',
+        '/api/auth/students',
         { name, uniqueID, password, department, role },
         { headers: { Authorization: `Bearer ${token}` } }
       );
