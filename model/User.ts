@@ -22,13 +22,28 @@ const UserSchema = new Schema<IUser>({
 });
 
 // Pre-save hook to hash password and standardize uniqueID casing
+// UserSchema.pre<IUser>('save', async function (next) {
+//   if (this.isModified('password') && this.password) {
+//     this.password = await bcrypt.hash(this.password, 10);
+//   }
+//   // This is the crucial line: it ensures the uniqueID is always uppercase
+//   if (this.isModified('uniqueID') && this.uniqueID) {
+//     this.uniqueID = this.uniqueID.toUpperCase();
+//   }
+//   next();
+// });
+
+// Add this new pre-save hook
 UserSchema.pre<IUser>('save', async function (next) {
   if (this.isModified('password') && this.password) {
     this.password = await bcrypt.hash(this.password, 10);
   }
-  // This is the crucial line: it ensures the uniqueID is always uppercase
   if (this.isModified('uniqueID') && this.uniqueID) {
     this.uniqueID = this.uniqueID.toUpperCase();
+  }
+  // This is the new crucial line for email standardization.
+  if (this.isModified('email') && this.email) {
+    this.email = this.email.toLowerCase();
   }
   next();
 });
