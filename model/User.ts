@@ -1,56 +1,76 @@
-import mongoose, { Document, Schema, Model, ObjectId } from 'mongoose';
+// model/User.ts
+import mongoose, { Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+// Define the interface for the User document
 export interface IUser extends Document {
-  _id: ObjectId;
+  _id: mongoose.Types.ObjectId;
   name: string;
-  uniqueID?: string;
-  email?: string;
+  uniqueID: string;
+  department: string;
   password?: string;
-  department?: string;
   role: 'student' | 'admin';
+  status: 'pending' | 'active';
+  email?: string;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-const UserSchema = new Schema<IUser>({
-  name: { type: String, required: true },
-  uniqueID: { type: String, unique: true, sparse: true },
-  email: { type: String, unique: true, sparse: true },
-  password: { type: String, required: true, select: false },
-  department: { type: String },
-  role: { type: String, enum: ['student', 'admin'], required: true },
+const UserSchema = new mongoose.Schema<IUser>({
+  name: {
+    type: String,
+    required: true,
+  },
+  uniqueID: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  department: {
+    type: String,
+    required: true,
+  },
+  password: {
+    type: String,
+    required: false,
+    select: true, // important so `.select('+password')` works
+  },
+  role: {
+    type: String,
+    enum: ['student', 'admin'],
+    default: 'student',
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'active'],
+    default: 'pending',
+  },
+  email: {
+    type: String,
+    required: false,
+    unique: true,
+    lowercase: true,
+  },
 });
 
-// Pre-save hook to hash password and standardize uniqueID casing
-// UserSchema.pre<IUser>('save', async function (next) {
-//   if (this.isModified('password') && this.password) {
-//     this.password = await bcrypt.hash(this.password, 10);
-//   }
-//   // This is the crucial line: it ensures the uniqueID is always uppercase
-//   if (this.isModified('uniqueID') && this.uniqueID) {
-//     this.uniqueID = this.uniqueID.toUpperCase();
-//   }
-//   next();
-// });
-
-// Add this new pre-save hook
-UserSchema.pre<IUser>('save', async function (next) {
-  if (this.isModified('password') && this.password) {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
-  if (this.isModified('uniqueID') && this.uniqueID) {
-    this.uniqueID = this.uniqueID.toUpperCase();
-  }
-  // This is the new crucial line for email standardization.
-  if (this.isModified('email') && this.email) {
-    this.email = this.email.toLowerCase();
-  }
+// Pre-save hook to hash the password
+UserSchema.pre('save', async function (next) {
+  if (!this.isModified('password') || !this.password) return next();
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-UserSchema.methods.comparePassword = async function (candidatePassword: string) {
-  return await bcrypt.compare(candidatePassword, this.password || '');
+// Add the comparePassword method
+UserSchema.methods.comparePassword = async function (
+  candidatePassword: string
+): Promise<boolean> {
+  if (!this.password) return false;
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
-const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
-export default User;
+// ✅ Ensure schema methods don’t get lost during hot reload
+const UserModel =
+  (mongoose.models.User as mongoose.Model<IUser>) ||
+  mongoose.model<IUser>('User', UserSchema);
+
+export default UserModel;

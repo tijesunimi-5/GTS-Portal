@@ -1,7 +1,8 @@
+// route.ts
 import { NextResponse, NextRequest } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
-import UserModel, { IUser } from '@/model/User';
-import User from '@/model/User';
+import UserModel from '@/model/User';
+import User, {IUser} from '@/model/User';
 
 /**
  * Handles GET requests to fetch all users.
@@ -9,20 +10,18 @@ import User from '@/model/User';
  */
 export async function GET() {
   try {
-    // Connect to the database
     await connectDB();
     
-    // Find all users in the database
-    const users = await User.find({});
+    // Explicitly tell TS that users is an array of IUser
+    const users: IUser[] = await UserModel.find({});
 
-    // Explicitly map the users to ensure the 'id' field is present and correctly formatted.
-    // We cast each document to IUser to provide type safety and resolve the error.
-    const formattedUsers = users.map((user: IUser) => ({
-      id: user._id.toString(),
+    const formattedUsers = users.map((user) => ({
+      id: user._id.toString(),   // now TS knows _id is ObjectId
       name: user.name,
       uniqueID: user.uniqueID,
       department: user.department,
       role: user.role,
+      status: user.status,
     }));
     
     console.log('Users fetched successfully.');
@@ -36,14 +35,47 @@ export async function GET() {
   }
 }
 
-// POST a new user
+
 export async function POST(req: NextRequest) {
   await connectDB();
   try {
-    const body = await req.json();
-    const newUser: IUser = await UserModel.create(body);
-    return NextResponse.json({ message: 'User added successfully!', user: newUser }, { status: 201 });
-  } catch (error) {
-    return NextResponse.json({ message: 'Failed to add user', error }, { status: 500 });
+    const { name, uniqueID, department, role } = await req.json();
+
+    if (!name || !uniqueID || !department) {
+      return NextResponse.json(
+        { message: 'Name, UniqueID and Department are required' },
+        { status: 400 }
+      );
+    }
+
+    // Check if student already exists
+    const existing = await User.findOne({ uniqueID });
+    if (existing) {
+      return NextResponse.json(
+        { message: 'Student with this UniqueID already exists' },
+        { status: 400 }
+      );
+    }
+
+    // Create student with pending status, no password
+    const newUser = new UserModel({
+      name,
+      uniqueID: uniqueID.trim().toUpperCase(),
+      department,
+      role: 'student',
+    });
+
+    await newUser.save();
+
+    return NextResponse.json(
+      { message: 'Student added successfully!', user: { id: newUser._id, name, uniqueID, role } },
+      { status: 201 }
+    );
+  } catch (error: any) {
+    console.error('Failed to add student:', error);
+    return NextResponse.json(
+      { message: 'Failed to add student', error: error.message },
+      { status: 500 }
+    );
   }
 }

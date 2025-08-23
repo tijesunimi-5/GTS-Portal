@@ -141,7 +141,8 @@ const AdminDashboard = () => {
       const res = await fetch('/api/students', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newStudent),
+        // Add the role field to the payload
+        body: JSON.stringify({ ...newStudent, role: 'student' }),
       });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -211,11 +212,16 @@ const AdminDashboard = () => {
 
   // Filters students based on search term
   useEffect(() => {
-    const results = students.filter(student =>
-      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.uniqueID.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.department.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const results = students.filter(student => {
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+
+      // Add checks to ensure properties are not null or undefined
+      const nameMatch = student.name && student.name.toLowerCase().includes(lowerCaseSearchTerm);
+      const uniqueIDMatch = student.uniqueID && student.uniqueID.toLowerCase().includes(lowerCaseSearchTerm);
+      const departmentMatch = student.department && student.department.toLowerCase().includes(lowerCaseSearchTerm);
+
+      return nameMatch || uniqueIDMatch || departmentMatch;
+    });
     setFilteredStudents(results);
   }, [searchTerm, students]);
 
